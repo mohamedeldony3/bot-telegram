@@ -1,121 +1,96 @@
-// ======================= userStore.js =======================
-//       تخزين المستخدمين وإدارة بياناتهم بالكامل
-// ===========================================================
+// ===================== userStore.js =====================
+// نظام إدارة المستخدمين + الإحالات + الرصيد
+// ========================================================
 
 const fs = require("fs");
-const path = require("path");
-const USERS_FILE = path.join(__dirname, "..", "users.json");
+const path = "./src/database/users.json";
 
-// ----------------------- تحميل المستخدمين -----------------------
-function loadUsers() {
-  if (!fs.existsSync(USERS_FILE)) {
-    fs.writeFileSync(USERS_FILE, "{}");
-    return {};
+if (!fs.existsSync(path)) {
+  fs.writeFileSync(path, JSON.stringify({ users: [] }, null, 2));
+}
+
+function load() {
+  return JSON.parse(fs.readFileSync(path));
+}
+
+function save(data) {
+  fs.writeFileSync(path, JSON.stringify(data, null, 2));
+}
+
+// ===================== جلب مستخدم =====================
+function getUser(id) {
+  const db = load();
+  return db.users.find(u => u.id === id);
+}
+
+// ===================== تحديث بيانات مستخدم =====================
+function updateUser(id, newData) {
+  const db = load();
+
+  let user = db.users.find(u => u.id === id);
+
+  if (!user) {
+    user = { id, balance: 0, referrals: 0, refUsed: false };
+    db.users.push(user);
   }
-  return JSON.parse(fs.readFileSync(USERS_FILE, "utf8"));
+
+  Object.assign(user, newData);
+
+  save(db);
+  return user;
 }
 
-// ----------------------- حفظ المستخدمين -----------------------
-function saveUsers(users) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+// ===================== التحقق من التسجيل =====================
+function isUserRegistered(id) {
+  const user = getUser(id);
+  return user && user.email;
 }
 
-// ----------------------- إنشاء مستخدم جديد -----------------------
-function createUser(userId, data = {}) {
-  const users = loadUsers();
-  
-  const newUser = {
-    id: userId,
-    email: null,
-    lang: "ar",
-    balance: 0,
-    isRegistered: false,
-    referredBy: null,
-    referralRewardReceived: false,
-    subdomains: [],
+// ===================== الرصيد =====================
+function addBalance(id, amount) {
+  const db = load();
+  const user = db.users.find(u => u.id === id);
 
-    // ================= Cloudflare Fields =================
-    awaitSubName: false,
-    awaitRecordType: false,
-    awaitIP: false,
-    awaitCnameTarget: false,
-    tempSubName: null,
-    tempRecordType: null,
+  if (!user) return false;
 
-    // ================= Registration Fields =================
-    awaitEmailRegister: false,
+  user.balance = (user.balance || 0) + amount;
 
-    // ================= Extras =================
-    registrationDate: null,
-    lastLogin: null,
-
-    ...data
-  };
-
-  users[userId] = newUser;
-  saveUsers(users);
-  return newUser;
-}
-
-// ----------------------- جلب مستخدم -----------------------
-function getUser(userId) {
-  const users = loadUsers();
-  return users[userId] || null;
-}
-
-// ----------------------- تحديث مستخدم -----------------------
-function updateUser(userId, newData) {
-  const users = loadUsers();
-  
-  if (!users[userId]) return createUser(userId, newData);
-
-  users[userId] = { ...users[userId], ...newData };
-  saveUsers(users);
-
-  return users[userId];
-}
-
-// ----------------------- حذف مستخدم -----------------------
-function deleteUser(userId) {
-  const users = loadUsers();
-  delete users[userId];
-  saveUsers(users);
-}
-
-// ----------------------- التحقق من التسجيل -----------------------
-function isUserRegistered(userId) {
-  const user = getUser(userId);
-  return user?.isRegistered || false;
-}
-
-// ----------------------- إضافة رصيد -----------------------
-function addBalance(userId, amount) {
-  const user = getUser(userId);
-  if (!user) return 0;
-
-  const newBalance = user.balance + amount;
-  updateUser(userId, { balance: newBalance });
-
-  return newBalance;
-}
-
-// ----------------------- خصم رصيد -----------------------
-function deductBalance(userId, amount) {
-  const user = getUser(userId);
-  if (!user || user.balance < amount) return false;
-
-  updateUser(userId, { balance: user.balance - amount });
+  save(db);
   return true;
 }
 
+// ===================== نظام الإحالات =====================
+function hasUsedReferral(id) {
+  const user = getUser(id);
+  return user?.refUsed === true;
+}
+
+function markReferralUsed(id) {
+  updateUser(id, { refUsed: true });
+}
+
+function addReferralBonus(ownerId) {
+  const db = load();
+  const user = db.users.find(u => u.id === ownerId);
+
+  if (!user) return false;
+
+  user.balance = (user.balance || 0) + 1; // مكافأة
+  user.referrals = (user.referrals || 0) + 1;
+
+  save(db);
+  return true;
+}
+
+// ===================== التصدير =====================
 module.exports = {
-  loadUsers,
-  saveUsers,
-  createUser,
   getUser,
   updateUser,
-  deleteUser,
   isUserRegistered,
+
   addBalance,
-  deductBalance
+
+  hasUsedReferral,
+  markReferralUsed,
+  addReferralBonus
 };
