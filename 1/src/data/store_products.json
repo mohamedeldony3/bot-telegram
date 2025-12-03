@@ -1,0 +1,45 @@
+[
+  {
+    "name": "شات جيبيتي برو",
+    "price": 50,
+    "description": "حساب شات جبتي برو",
+    "emoji": "📦",
+    "deliveryType": "manual",
+    "id": "chatgpt",
+    "stock": [],
+    "active": true
+  },
+  {
+    "id": "ram6",
+    "name": "VPS Ram 6",
+    "price": 120,
+    "description": "سيرفر vps رام 6",
+    "emoji": "📦",
+    "message": "راسلنا للاستلام @M_U_36",
+    "stock": 9999,
+    "deliveryType": "auto",
+    "active": true
+  },
+  {
+    "id": "ram12",
+    "name": "VPS Ram 12",
+    "price": 200,
+    "description": "سيرفر vps رام ١٢",
+    "emoji": "📦",
+    "message": "راسلنا للاستلام @M_U_36",
+    "stock": 9999,
+    "deliveryType": "auto",
+    "active": true
+  },
+  {
+    "id": "ram16",
+    "name": "VPS Ram 16",
+    "price": 300,
+    "description": "سيرفر vps رام ١٦",
+    "emoji": "📦",
+    "message": "راسلنا للاستلام @M_U_36",
+    "stock": 9999,
+    "deliveryType": "auto",
+    "active": true
+  }
+]
