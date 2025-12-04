@@ -1,0 +1,31 @@
+{
+  "name": "telegram-ai-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot with plugins, language system, inline buttons, AI command handler, and user storage.",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node src/bot.js",
+    "dev": "nodemon src/bot.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "nodejs",
+    "ai",
+    "plugins",
+    "inline"
+  ],
+  "author": "Mohamed Elsony",
+  "license": "MIT",
+  "dependencies": {
+    "@iamtraction/google-translate": "^2.0.1",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "node-telegram-bot-api": "^0.63.0",
+    "ssh2": "^1.17.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
